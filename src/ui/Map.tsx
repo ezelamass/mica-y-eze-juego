@@ -1,4 +1,5 @@
 import { Card } from "./Card";
+import { Pill } from "./Pill";
 import { PLACES } from "../data/places";
 
 const MAP_LENGTH = 30;
@@ -14,15 +15,17 @@ export function MapView({ mapNode, xp, unlockedPlaces }: MapViewProps) {
   const nodes = Array.from({ length: MAP_LENGTH }, (_, i) => i + 1);
   const nextPlace = PLACES.find((p) => !unlockedPlaces.includes(p.id));
   const nextNodeXp = nextPlace ? nextPlace.unlockNode * XP_PER_NODE : null;
+  const unlocked = PLACES.filter((p) => unlockedPlaces.includes(p.id));
 
   return (
     <Card>
       <div className="card-row">
-        <h2>Mapa</h2>
-        <span className="dim">casilla {mapNode} de {MAP_LENGTH}</span>
+        <Pill tone="plum">
+          Casilla {mapNode} de {MAP_LENGTH}
+        </Pill>
       </div>
-      <p className="dim">
-        Cada casilla violeta desbloquea un lugar de Buenos Aires al que todavía no fueron.
+      <p className="dim" style={{ marginTop: 0 }}>
+        Cada casilla violeta te desbloquea un lugar de Buenos Aires al que todavía no fuimos.
       </p>
       <div className="map-grid" style={{ marginTop: 12 }}>
         {nodes.map((n) => {
@@ -42,16 +45,19 @@ export function MapView({ mapNode, xp, unlockedPlaces }: MapViewProps) {
           <>
             <b>Próximo destino: casilla {nextPlace.unlockNode}</b>
             <p className="dim" style={{ marginTop: 2 }}>
-              Faltan {Math.max(0, nextNodeXp - xp)} XP para saber cuál es.
+              Faltan {Math.max(0, nextNodeXp - xp)} XP para descubrirlo.
             </p>
           </>
         ) : (
-          <b>¡Recorrieron todo el mapa!</b>
+          <b>¡Recorrimos todo el mapa!</b>
         )}
       </div>
-      {unlockedPlaces.length > 0 && (
+      {unlocked.length > 0 && (
         <div style={{ marginTop: 14, display: "grid", gap: 6 }}>
-          {PLACES.filter((p) => unlockedPlaces.includes(p.id)).map((p) => (
+          <p className="dim" style={{ margin: "0 0 2px", fontWeight: 600 }}>
+            Ya desbloqueamos:
+          </p>
+          {unlocked.map((p) => (
             <p key={p.id} className="dim" style={{ margin: 0 }}>
               <b style={{ color: "var(--ink)" }}>{p.name}</b> — {p.description}
             </p>
