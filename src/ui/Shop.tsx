@@ -35,8 +35,9 @@ export function Shop({ state, onBuyItem, onBuyCita }: ShopProps) {
 
   return (
     <Card>
-      <h2>Tienda</h2>
-      <p className="dim">Se compra cuando quieran. Se puede guardar para algo más caro.</p>
+      <p className="dim" style={{ margin: 0 }}>
+        Comprá cuando quieras. Podés guardar para algo más caro.
+      </p>
       <div className="shop-list" style={{ marginTop: 14 }}>
         {gifts.map((item) => (
           <div className="shop-item" key={item.id}>
@@ -87,7 +88,11 @@ export function Shop({ state, onBuyItem, onBuyCita }: ShopProps) {
             </button>
           </div>
         ))}
-        {nothingLeft && <p className="shop-empty">No queda nada más por ahora.</p>}
+        {nothingLeft && (
+          <p className="shop-empty">
+            Por ahora no queda nada más. Seguí jugando y va a aparecer algo nuevo.
+          </p>
+        )}
       </div>
 
       {pending && (
@@ -107,8 +112,8 @@ export function Shop({ state, onBuyItem, onBuyCita }: ShopProps) {
         >
           <p>
             {pending.kind === "item"
-              ? `¿Comprar "${pending.name}" por ${pending.price} monedas?`
-              : `¿Canjear la cita sorpresa a ${pending.place.name} por ${CITA_PRICE} monedas?`}
+              ? `¿Querés comprar "${pending.name}" por ${pending.price} monedas?`
+              : `¿Querés canjear la cita sorpresa a ${pending.place.name} por ${CITA_PRICE} monedas?`}
           </p>
         </Modal>
       )}

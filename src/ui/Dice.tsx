@@ -25,7 +25,7 @@ export function Dice({ available, onRoll }: DiceProps) {
   return (
     <Card>
       <h2>Tirada bonus</h2>
-      <p className="dim">Cada 3 días jugados, además del juego del día.</p>
+      <p className="dim">Cada 3 días que jugamos se suma una tirada extra, además del juego del día.</p>
       <div className="dice-row" style={{ marginTop: 14 }}>
         <div className={`die ${rolling ? "rolling" : ""}`}>{result ? result.face : "?"}</div>
         <div style={{ flex: 1 }}>
@@ -40,7 +40,7 @@ export function Dice({ available, onRoll }: DiceProps) {
                   .join(" · ")}
               </b>
               <p className="dim" style={{ margin: "2px 0 0" }}>
-                Tirada usada.
+                Ya la usaste.
               </p>
             </>
           ) : (
