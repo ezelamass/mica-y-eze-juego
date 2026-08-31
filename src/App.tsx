@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { getGame } from "./data/games";
+import type { GameId } from "./data/games";
 import type { ShopItemId } from "./data/shop";
-import { load, save } from "./state/storage";
+import { load, save, defaultState } from "./state/storage";
 import type { MicaState } from "./state/storage";
 import {
   ensureTodaysGame,
@@ -11,6 +12,10 @@ import {
   buyShopItem,
   buyCita,
   todayISO,
+  forceGame,
+  grantXp,
+  grantCoins,
+  forceDiceAvailable,
 } from "./state/engine";
 import type { RoundResult } from "./state/engine";
 import { GAME_COMPONENTS } from "./games/registry";
@@ -19,6 +24,7 @@ import { Modal } from "./ui/Modal";
 import { SettingsPanel } from "./ui/SettingsPanel";
 import { BottomNav } from "./ui/BottomNav";
 import { useRoute } from "./router";
+import { useTestMode } from "./useTestMode";
 import { HomePage } from "./pages/HomePage";
 import { MapaPage } from "./pages/MapaPage";
 import { TiendaPage } from "./pages/TiendaPage";
@@ -37,6 +43,7 @@ export default function App() {
   const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
   const [bigGiftCelebration, setBigGiftCelebration] = useState(false);
   const [route, navigate] = useRoute();
+  const [testMode, exitTestMode] = useTestMode();
 
   const today = todayISO();
   const alreadyPlayedToday = state.lastPlayedDate === today;
@@ -70,6 +77,21 @@ export default function App() {
     if (next) updateState(next);
   };
 
+  const handleForceGame = (id: GameId) => {
+    updateState(forceGame(state, id, today));
+    setRoundResult(null);
+  };
+
+  const handleGrantCoins = (amount: number) => updateState(grantCoins(state, amount));
+  const handleGrantXp = (amount: number) => updateState(grantXp(state, amount));
+  const handleForceDice = () => updateState(forceDiceAvailable(state));
+
+  const handleResetProgress = () => {
+    const fresh = ensureTodaysGame(defaultState(), today);
+    updateState(fresh);
+    setRoundResult(null);
+  };
+
   const game = state.todaysGame ? getGame(state.todaysGame.gameId) : null;
   const GameComponent = game ? GAME_COMPONENTS[game.id] : null;
   const content =
@@ -82,6 +104,15 @@ export default function App() {
   return (
     <div className="app-shell">
       <SettingsPanel state={state} />
+
+      {testMode && (
+        <div className="test-banner">
+          🧪 Modo test activo — esto no es lo que ve Mica.
+          <button type="button" className="test-banner-exit" onClick={exitTestMode}>
+            Salir
+          </button>
+        </div>
+      )}
 
       {route === "/mapa" ? (
         <MapaPage state={state} />
@@ -98,6 +129,12 @@ export default function App() {
           onFinish={handleFinish}
           onDismissResult={() => setRoundResult(null)}
           onDiceRoll={handleDiceRoll}
+          testMode={testMode}
+          onForceGame={handleForceGame}
+          onGrantCoins={handleGrantCoins}
+          onGrantXp={handleGrantXp}
+          onForceDice={handleForceDice}
+          onResetProgress={handleResetProgress}
         />
       )}
 

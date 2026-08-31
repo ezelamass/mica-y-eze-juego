@@ -4,9 +4,10 @@ import { Button } from "../ui/Button";
 import { Pill } from "../ui/Pill";
 import { Hud } from "../ui/Hud";
 import { Dice } from "../ui/Dice";
+import { TestPanel } from "../ui/TestPanel";
 import type { MicaState } from "../state/storage";
 import type { RoundResult, DiceRoll } from "../state/engine";
-import type { GameDef } from "../data/games";
+import type { GameDef, GameId } from "../data/games";
 import type { GameProps } from "../games/GameProps";
 
 function ResultCard({
@@ -70,6 +71,12 @@ interface HomePageProps {
   onFinish: (won: boolean) => void;
   onDismissResult: () => void;
   onDiceRoll: () => DiceRoll;
+  testMode: boolean;
+  onForceGame: (id: GameId) => void;
+  onGrantCoins: (amount: number) => void;
+  onGrantXp: (amount: number) => void;
+  onForceDice: () => void;
+  onResetProgress: () => void;
 }
 
 export function HomePage({
@@ -82,6 +89,12 @@ export function HomePage({
   onFinish,
   onDismissResult,
   onDiceRoll,
+  testMode,
+  onForceGame,
+  onGrantCoins,
+  onGrantXp,
+  onForceDice,
+  onResetProgress,
 }: HomePageProps) {
   return (
     <>
@@ -95,11 +108,21 @@ export function HomePage({
       <div className="stack">
         <Hud coins={state.coins} xp={state.xp} streak={state.streak} />
 
+        {testMode && (
+          <TestPanel
+            onForceGame={onForceGame}
+            onGrantCoins={onGrantCoins}
+            onGrantXp={onGrantXp}
+            onForceDice={onForceDice}
+            onReset={onResetProgress}
+          />
+        )}
+
         <Dice available={state.diceAvailable} onRoll={onDiceRoll} />
 
         {roundResult ? (
           <ResultCard result={roundResult} onContinue={onDismissResult} />
-        ) : alreadyPlayedToday ? (
+        ) : !testMode && alreadyPlayedToday ? (
           <Card>
             <h2>Ya jugamos hoy</h2>
             <p className="dim">Nos vemos mañana. El día que no jugamos, se pierde.</p>

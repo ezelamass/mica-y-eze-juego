@@ -155,6 +155,47 @@ export function ensureTodaysGame(state: MicaState, today: string): MicaState {
   };
 }
 
+/**
+ * Modo test: fuerza el juego de hoy a uno elegido a mano, ignorando los
+ * filtros del sorteo real (recientes, tope semanal de mesa, contenido sin
+ * usar) para poder repasar cualquier minijuego las veces que haga falta.
+ * El resto del flujo (resolveRound) corre exactamente igual que en un día
+ * real, así que la economía, el mapa y el mazo de prendas reaccionan de
+ * verdad — es la única forma de "ver el funcionamiento" real y no una
+ * maqueta.
+ */
+export function forceGame(state: MicaState, gameId: GameId, today: string): MicaState {
+  const game = getGame(gameId);
+  let contentIds: number[];
+  if (gameId === "friends") {
+    contentIds = shuffle(FRIENDS_QUESTIONS)
+      .slice(0, FRIENDS_ROUND_SIZE)
+      .map((q) => q.id);
+  } else {
+    const pool = CONTENT_POOLS[gameId];
+    contentIds = pool && pool.length > 0 ? [pickRandom(pool).id] : [];
+  }
+  return { ...state, todaysGame: { date: today, gameId: game.id, contentIds } };
+}
+
+/** Modo test: suma XP y desbloquea destinos del mapa como si se hubiera ganado. */
+export function grantXp(state: MicaState, amount: number): MicaState {
+  const xp = state.xp + amount;
+  const mapNode = Math.min(MAP_LENGTH, Math.floor(xp / XP_PER_MAP_NODE));
+  const { unlockedPlaces } = unlockNewPlaces(state.unlockedPlaces, state.mapNode, mapNode);
+  return { ...state, xp, mapNode, unlockedPlaces };
+}
+
+/** Modo test: suma monedas directo, para poder probar la tienda sin grindear. */
+export function grantCoins(state: MicaState, amount: number): MicaState {
+  return { ...state, coins: state.coins + amount };
+}
+
+/** Modo test: habilita la tirada de dado sin esperar los 3 días. */
+export function forceDiceAvailable(state: MicaState): MicaState {
+  return { ...state, diceAvailable: true };
+}
+
 function drawPrenda(used: number[]): { prenda: Prenda; usedPrendas: number[] } {
   const exhausted = used.length >= PRENDAS.length;
   const base = exhausted ? [] : used;

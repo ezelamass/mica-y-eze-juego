@@ -611,6 +611,51 @@ textarea.answer {
   background: var(--coral);
 }
 
+/* ---- modo test ---- */
+.test-banner {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  background: rgba(255, 107, 90, 0.16);
+  border-bottom: 1px solid var(--coral);
+  color: var(--coral-soft);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 12px;
+  margin: -24px -16px 20px;
+}
+.test-banner-exit {
+  background: none;
+  border: none;
+  color: var(--coral-soft);
+  text-decoration: underline;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 6px;
+  font-size: inherit;
+  font-family: inherit;
+}
+.test-card {
+  border-style: dashed;
+  border-color: var(--coral);
+}
+.test-label {
+  color: var(--dim);
+  font-size: 13px;
+  font-weight: 700;
+  margin: 14px 0 6px;
+}
+.test-label:first-of-type {
+  margin-top: 12px;
+}
+.test-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* ---- misc ---- */
 .center-text {
   text-align: center;
