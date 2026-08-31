@@ -1,0 +1,468 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El juego de Micaela — diseño definitivo y plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,700;1,700&family=Karla:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* ==== TOKENS DEFINITIVOS — copiar tal cual al repo ==== */
+  --bg:#14100E;          /* negro café, cálido, nunca #000 */
+  --surface:#201A17;     /* tarjeta */
+  --surface-2:#2A2320;   /* input, casilla vacía */
+  --ink:#F7F1E8;         /* texto principal, 14:1 sobre --bg */
+  --dim:#BCAB99;         /* texto secundario, 7:1 sobre --bg */
+  --line:#3D342E;        /* bordes */
+  --coral:#FF6B5A;       /* acción principal */
+  --coral-soft:#FF8A7B;  /* coral para texto sobre fondo oscuro */
+  --turq:#4FD8D0;        /* premio, éxito, acento secundario */
+  --plum:#8E5AB0;        /* el violeta de la puerta, guiño */
+  --on-accent:#14100E;   /* texto sobre coral o turquesa */
+  --radius:18px;
+  --glow:0 0 24px rgba(255,107,90,.28);
+
+  --font-display:"Lobster Two",cursive;
+  --font-body:"Karla",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px 96px}
+
+/* ---- portada ---- */
+.masthead{padding:72px 0 44px;border-bottom:1px solid var(--line)}
+.masthead .kicker{color:var(--turq);font-size:14px;font-weight:600;margin:0 0 10px}
+.masthead h1{font-family:var(--font-display);font-weight:700;font-style:italic;
+  font-size:clamp(44px,9vw,84px);line-height:1;margin:0 0 20px;color:var(--ink);
+  text-shadow:0 0 30px rgba(255,107,90,.35)}
+.masthead p{max-width:62ch;color:var(--dim);margin:0 0 10px;font-size:17px}
+
+h2.sec{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,4.4vw,38px);
+  margin:64px 0 6px;color:var(--ink)}
+h3.sub{font-family:var(--font-body);font-weight:800;font-size:17px;margin:38px 0 4px}
+.sec-sub{color:var(--dim);max-width:66ch;margin:0 0 26px;font-size:15px}
+
+/* ---- app preview ---- */
+.stage{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--bg)}
+.app{padding:28px 20px 36px}
+.app-inner{max-width:500px;margin:0 auto;display:grid;gap:20px}
+
+.app h4{font-family:var(--font-display);font-weight:700;font-size:22px;margin:0;line-height:1.25}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+
+.hud{display:flex;gap:10px}
+.hud .stat{flex:1;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 14px}
+.hud .stat small{display:block;font-size:12px;color:var(--dim);font-weight:500}
+.hud .stat b{display:block;margin-top:2px;font-size:26px;font-weight:800;
+  font-variant-numeric:tabular-nums;line-height:1.15}
+.hud .stat.coin b{color:var(--turq)}
+
+.btn{font-family:var(--font-display);font-weight:700;font-size:19px;cursor:pointer;
+  background:var(--coral);color:var(--on-accent);border:1px solid var(--coral);
+  border-radius:var(--radius);padding:13px 20px;width:100%;box-shadow:var(--glow);
+  transition:transform .08s,filter .12s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(2px)}
+.btn:focus-visible{outline:3px solid var(--turq);outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);box-shadow:none}
+
+.pill{display:inline-block;font-size:12px;font-weight:800;padding:5px 11px;border-radius:99px;
+  background:rgba(79,216,208,.14);color:var(--turq);border:1px solid rgba(79,216,208,.4);white-space:nowrap}
+.dim{color:var(--dim);font-size:14px;margin:8px 0 0}
+
+.today{display:grid;gap:14px}
+.today .row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.emojis{font-size:38px;letter-spacing:.16em;text-align:center;padding:16px 0}
+.answer{width:100%;font:inherit;font-size:16px;padding:13px;border:1px solid var(--line);
+  border-radius:var(--radius);background:var(--surface-2);color:var(--ink)}
+.answer::placeholder{color:#7E7168}
+.answer:focus-visible{outline:2px solid var(--coral);outline-offset:1px}
+
+.result{display:grid;gap:12px;text-align:center}
+.result .big{font-family:var(--font-display);font-style:italic;font-size:32px;line-height:1.15}
+.result.win .big{color:var(--turq)}
+.result.lose .big{color:var(--coral-soft)}
+.gain{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.gain span{border-radius:99px;padding:7px 14px;background:var(--turq);
+  color:var(--on-accent);font-weight:800;font-size:14px}
+
+.map{display:flex;flex-wrap:wrap;gap:8px}
+.node{width:32px;height:32px;border:1px solid var(--line);border-radius:99px;background:var(--surface-2);
+  display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--dim);
+  font-variant-numeric:tabular-nums}
+.node.done{background:var(--turq);color:var(--on-accent);border-color:var(--turq)}
+.node.here{background:var(--coral);color:var(--on-accent);border-color:var(--coral);
+  transform:scale(1.16);box-shadow:var(--glow)}
+.node.prize{border-style:dashed;border-color:var(--plum);border-width:2px}
+
+.shop{display:grid;gap:10px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;background:var(--surface-2)}
+.item.locked{opacity:.42}
+.item .name{font-size:15px;font-weight:600}
+.item .name em{display:block;font-style:normal;font-size:13px;color:var(--dim);font-weight:400;margin-top:1px}
+.item .price{font-size:20px;font-weight:800;color:var(--turq);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.dice{display:flex;gap:16px;align-items:center}
+.die{width:66px;height:66px;flex:none;border-radius:var(--radius);background:var(--plum);
+  display:grid;place-items:center;font-size:30px;font-weight:800;color:#fff;
+  font-variant-numeric:tabular-nums}
+
+/* ---- documentación ---- */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.block{border:1px solid var(--line);border-radius:var(--radius);padding:20px;background:var(--surface)}
+.block h4{margin:0 0 10px;font-size:16px;font-weight:800}
+.block ul{margin:0;padding-left:18px;color:var(--dim);font-size:15px}
+.block li{margin-bottom:7px}
+.block li b{color:var(--ink);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:10px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--turq);font-weight:800;font-size:13px}
+td:last-child,th:last-child{text-align:right;white-space:nowrap}
+td b{font-weight:600}
+pre{background:#0D0A09;border:1px solid var(--line);border-radius:12px;padding:18px;
+  overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#D8CDC2;line-height:1.65}
+code{font-family:"JetBrains Mono",monospace;font-size:.9em;color:var(--coral-soft)}
+.phase{border-left:2px solid var(--coral);padding-left:18px;margin-bottom:24px}
+.phase .when{color:var(--coral-soft);font-size:13px;font-family:"JetBrains Mono",monospace}
+.phase h4{margin:2px 0 0;font-size:17px;font-weight:800}
+.phase p{margin:7px 0 0;color:var(--dim);font-size:15px;max-width:66ch}
+.warn{border:1px solid #6E4A2E;background:#221509;border-radius:12px;padding:18px;
+  color:#EBD5B4;font-size:15px;margin-top:18px}
+.warn b{color:#FFC46B}
+.later{border:1px dashed var(--plum);border-radius:var(--radius);padding:20px;background:rgba(142,90,176,.07)}
+.later h4{margin:0 0 8px;font-size:16px;font-weight:800;color:var(--plum)}
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin-top:14px}
+.sw{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sw .chip{height:44px}
+.sw .lab{padding:9px 11px}
+.sw b{display:block;font-size:13px}
+.sw span{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim)}
+footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="kicker">Diseño definitivo · versión para construir</p>
+  <h1>El juego de Micaela</h1>
+  <p>Web app local para jugar juntos, una vez por día. Ella gana monedas y experiencia: las monedas compran regalos y caprichos, la experiencia avanza en un mapa de lugares de Buenos Aires donde todavía no fuimos.</p>
+  <p>Todo el contenido va hardcodeado. Sin servidor, sin base de datos, sin login.</p>
+</header>
+
+<h2 class="sec">La app</h2>
+<p class="sec-sub">Central Perk de noche: la tipografía cursiva del cartel, pero con la legibilidad de la versión de día. La cursiva aparece solo en títulos y resultados; todo lo que hay que leer o comparar rápido (números, precios, listas) va en Karla, que es la que se lee bien de un vistazo.</p>
+
+<div class="stage">
+  <div class="app">
+    <div class="app-inner">
+
+      <div class="hud">
+        <div class="stat coin"><small>Monedas</small><b id="hudCoins">12</b></div>
+        <div class="stat"><small>Experiencia</small><b>340</b></div>
+        <div class="stat"><small>Racha</small><b>4</b></div>
+      </div>
+
+      <div class="card today">
+        <div class="row">
+          <h4>Hoy toca: recuerdo en emojis</h4>
+          <span class="pill">1 moneda</span>
+        </div>
+        <p class="dim" style="margin:0">Adiviná qué día nuestro es. Tenés un intento.</p>
+        <div class="emojis">🚌 🌧️ 🍕 😂</div>
+        <input class="answer" placeholder="Escribí tu respuesta" aria-label="Tu respuesta">
+        <button class="btn" id="playBtn">Responder</button>
+      </div>
+
+      <div class="card result win">
+        <div class="big">Le pegaste</div>
+        <p class="dim" style="margin:0">Era el día que perdimos el bondi bajo la lluvia.</p>
+        <div class="gain"><span>+1 moneda</span><span>+10 XP</span></div>
+      </div>
+
+      <div class="card result lose">
+        <div class="big">Perdiste</div>
+        <p class="dim" style="margin:0">Sacá una prenda del mazo. No se repite hasta que se agoten.</p>
+        <button class="btn ghost">Girar la ruleta de prendas</button>
+      </div>
+
+      <div class="card">
+        <h4>Tirada libre</h4>
+        <p class="dim">Cada 3 días, además del juego del día.</p>
+        <div class="dice" style="margin-top:14px">
+          <div class="die">4</div>
+          <div>
+            <b style="font-size:15px">Moneda doble</b>
+            <p class="dim" style="margin:2px 0 0">Lo que ganes hoy vale x2.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+          <h4>Mapa</h4>
+          <span class="dim" style="margin:0">casilla 14 de 30</span>
+        </div>
+        <p class="dim" style="margin-bottom:16px">Cada casilla violeta desbloquea un lugar de Buenos Aires al que todavía no fuimos.</p>
+        <div class="map" id="map"></div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
+          <b style="font-size:15px">Próximo destino: casilla 15</b>
+          <p class="dim" style="margin-top:2px">Faltan 25 XP para saber cuál es.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Tienda</h4>
+        <p class="dim" style="margin-bottom:16px">Se compra cuando quieras. Podés guardar para algo más caro.</p>
+        <div class="shop">
+          <div class="item"><div class="name">Regalo chico<em>Traído del viaje</em></div><div class="price">8</div></div>
+          <div class="item locked"><div class="name">Regalo mediano<em>Traído del viaje</em></div><div class="price">18</div></div>
+          <div class="item locked"><div class="name">Regalo grande<em>Traído del viaje</em></div><div class="price">35</div></div>
+          <div class="item"><div class="name">Masaje de 5 minutos</div><div class="price">2</div></div>
+          <div class="item"><div class="name">Masaje de 10 minutos<em>Con extra: 25% off</em></div><div class="price">4</div></div>
+          <div class="item"><div class="name">Cita sorpresa a un lugar nuevo<em>Sale del mapa</em></div><div class="price">6</div></div>
+          <div class="item"><div class="name">Cupón: cuando ella quiera<em>Válido 24 horas</em></div><div class="price">5</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Ya jugaste hoy</h4>
+        <p class="dim">Volvé mañana. El día que no jugás, se pierde.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<h2 class="sec">Sistema de diseño</h2>
+<p class="sec-sub">Estos tokens van tal cual al CSS del repo. Están en el <code>:root</code> del código fuente de este documento, listos para copiar.</p>
+
+<div class="swatches">
+  <div class="sw"><div class="chip" style="background:#14100E"></div><div class="lab"><b>Fondo</b><span>#14100E</span></div></div>
+  <div class="sw"><div class="chip" style="background:#201A17"></div><div class="lab"><b>Tarjeta</b><span>#201A17</span></div></div>
+  <div class="sw"><div class="chip" style="background:#FF6B5A"></div><div class="lab"><b>Coral (acción)</b><span>#FF6B5A</span></div></div>
+  <div class="sw"><div class="chip" style="background:#4FD8D0"></div><div class="lab"><b>Turquesa (premio)</b><span>#4FD8D0</span></div></div>
+  <div class="sw"><div class="chip" style="background:#8E5AB0"></div><div class="lab"><b>Violeta (mapa)</b><span>#8E5AB0</span></div></div>
+  <div class="sw"><div class="chip" style="background:#F7F1E8"></div><div class="lab"><b>Texto</b><span>#F7F1E8</span></div></div>
+</div>
+
+<h3 class="sub">Las reglas que hacen que se lea bien</h3>
+<div class="grid2" style="margin-top:14px">
+  <div class="block">
+    <h4>Tipografía</h4>
+    <ul>
+      <li><b>Lobster Two</b> solo en: título de la app, títulos de tarjeta, resultado y texto de botones. Nunca por debajo de 19px, nunca en párrafos.</li>
+      <li><b>Karla</b> en todo lo demás. Cuerpo a 15–16px, nunca 13 o menos salvo etiquetas.</li>
+      <li>Los <b>números</b> (monedas, XP, precios, casillas) van en Karla 800 con <code>tabular-nums</code>, no en cursiva: cambian todo el tiempo y tienen que leerse sin pensar.</li>
+    </ul>
+  </div>
+  <div class="block">
+    <h4>Color y luz</h4>
+    <ul>
+      <li>El resplandor va <b>solo en el botón principal</b> y en la casilla actual del mapa. Nunca detrás de texto.</li>
+      <li>Coral = acción. Turquesa = ganancia. Violeta = mapa y destinos. No se mezclan.</li>
+      <li>Fondo negro cálido, nunca negro puro: las fotos de ustedes se ven frías sobre <code>#000</code>.</li>
+      <li>Sobre coral o turquesa, el texto va oscuro. Nunca blanco sobre coral.</li>
+    </ul>
+  </div>
+</div>
+
+<h2 class="sec">Contenido del juego</h2>
+<p class="sec-sub">Todo hardcodeado en archivos de datos. Para agregar un juego, un lugar o una prenda: se edita el archivo y listo. Nada de base de datos.</p>
+
+<h3 class="sub">Los 10 minijuegos digitales</h3>
+<table>
+  <tr><th>Juego</th><th>Cómo funciona</th><th>Premio</th></tr>
+  <tr><td><b>Recuerdo en emojis</b></td><td>Traducís un recuerdo a emojis, ella adivina cuál</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Línea temporal</b></td><td>Ordenar 5 fotos cronológicamente, contra reloj</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Memoria compartida</b></td><td>Foto nuestra: adivinar día, lugar u outfit</td><td>2 · 15 XP</td></tr>
+  <tr><td><b>Seguí la historia</b></td><td>Contás el arranque de un día nuestro, ella sigue qué pasó</td><td>2 · 15 XP</td></tr>
+  <tr><td><b>Mapa a ciegas</b></td><td>Recorte de mapa de un lugar donde estuvimos</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Impostor</b></td><td>3 datos verdaderos + 1 falso, encontrar el falso</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Trivia personal</b></td><td>Preguntas sobre vos que solo ella sabría</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Trivia de Friends</b></td><td>5 preguntas del banco, 4 correctas para ganar</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Mímica</b></td><td>Categorías: películas, trabajos, canciones, momentos nuestros</td><td>1 · 10 XP</td></tr>
+  <tr><td><b>Piedra, papel o tijera</b></td><td>Mejor de 3. El comodín de los días sin tiempo</td><td>1 · 5 XP</td></tr>
+</table>
+
+<h3 class="sub">Juegos de mesa</h3>
+<p class="sec-sub" style="margin-bottom:0">Tres al arranque, la lista crece: se agrega una línea al array y aparece solo en el sorteo. Entran en el mismo bombo que los digitales, con probabilidad limitada.</p>
+<table>
+  <tr><th>Juego</th><th>Registro</th><th>Premio</th></tr>
+  <tr><td><b>Bibliotecarios Gritones</b></td><td>Se juega físico, cargás el ganador en la app</td><td>3 · 30 XP</td></tr>
+  <tr><td><b>Chinchón</b></td><td>Físico, cargás el ganador</td><td>3 · 30 XP</td></tr>
+  <tr><td><b>Chin</b></td><td>Físico, cargás el ganador</td><td>3 · 30 XP</td></tr>
+</table>
+<p class="sec-sub" style="margin-top:10px">Valen el triple porque duran veinte veces más. Tope duro: un juego de mesa por semana como máximo, aunque el sorteo lo elija. Si no, el juego diario de dos minutos se vuelve un compromiso de dos horas y deja de querer jugarlo.</p>
+
+<h3 class="sub">El mapa: lugares reales</h3>
+<p class="sec-sub">Las 30 casillas dejan de ser decoración: cada casilla violeta (una cada 5) desbloquea un lugar concreto de Buenos Aires o alrededores donde todavía no fueron. Cuando lo desbloquea, se lo puede canjear en la tienda como cita.</p>
+<div class="grid2">
+  <div class="block">
+    <h4>Cómo funciona</h4>
+    <ul>
+      <li>25 XP = una casilla. Perder también da XP, así que el mapa <b>siempre avanza</b>.</li>
+      <li>Casillas 5, 10, 15, 20, 25 y 30: se revela un destino.</li>
+      <li>El destino revelado aparece en la tienda como <b>cita sorpresa</b> por 6 monedas.</li>
+      <li>Seis destinos hardcodeados alcanzan. Me pasás la lista y los cargo.</li>
+    </ul>
+  </div>
+  <div class="block">
+    <h4>Por qué esto arregla el mapa</h4>
+    <ul>
+      <li>Antes era una barra de progreso linda que iba a dejar de mirar en tres días.</li>
+      <li>Ahora la XP tiene destino y perder no es tiempo perdido.</li>
+      <li>Y te resuelve un problema real: <b>a dónde salir</b>, decidido de antemano.</li>
+    </ul>
+  </div>
+</div>
+
+<h3 class="sub">Economía</h3>
+<table>
+  <tr><th>Concepto</th><th>Detalle</th><th>Valor</th></tr>
+  <tr><td>Ganar juego digital</td><td>Según dificultad</td><td>1–2 monedas</td></tr>
+  <tr><td>Ganar juego de mesa</td><td>Máximo uno por semana</td><td>3 monedas</td></tr>
+  <tr><td>Perder</td><td>Prenda + consuelo</td><td>0 · 5 XP</td></tr>
+  <tr><td>Racha de 7 días</td><td>Bonus por constancia</td><td>+3 monedas</td></tr>
+  <tr><td>Casilla del mapa</td><td>Avanza sola con la XP</td><td>25 XP</td></tr>
+  <tr><td>Regalo chico / mediano / grande</td><td>Los reales del viaje</td><td>8 / 18 / 35</td></tr>
+  <tr><td>Caprichos</td><td>Masajes, citas, cupón</td><td>2 a 6</td></tr>
+</table>
+<p class="sec-sub" style="margin-top:10px">Con estos números el chico cae a la semana, el mediano a las dos y media, el grande cerca del mes. Para acortarlo, bajá los tres precios en la misma proporción y no toques los premios.</p>
+
+<h2 class="sec">Arquitectura</h2>
+
+<h3 class="sub">Stack</h3>
+<div class="grid2">
+  <div class="block">
+    <h4>Decisiones fijas</h4>
+    <ul>
+      <li><b>Vite + React + TypeScript.</b> Una sola página, sin router.</li>
+      <li><b>Sin servidor, sin base de datos, sin login.</b></li>
+      <li>Estado en <b>localStorage</b>, una sola clave.</li>
+      <li>CSS plano con variables, sin librería de UI.</li>
+      <li>Contenido en <code>/src/data/*.ts</code>, tipado y hardcodeado.</li>
+      <li>Fotos en <code>/public/fotos/</code>, referenciadas por ruta.</li>
+      <li>Deploy en <b>Vercel</b>, repo privado, sin contraseña.</li>
+    </ul>
+  </div>
+  <div class="block">
+    <h4>Estructura de archivos</h4>
+    <ul>
+      <li><code>/src/data/games.ts</code> — los 13 juegos y sus premios</li>
+      <li><code>/src/data/questions.ts</code> — Friends y personales</li>
+      <li><code>/src/data/memories.ts</code> — emojis, fotos, historias</li>
+      <li><code>/src/data/prendas.ts</code> — el mazo</li>
+      <li><code>/src/data/places.ts</code> — destinos del mapa</li>
+      <li><code>/src/data/shop.ts</code> — la tienda</li>
+      <li><code>/src/state/storage.ts</code> — leer, guardar, exportar, importar</li>
+    </ul>
+  </div>
+</div>
+
+<h3 class="sub">Estado guardado</h3>
+<pre>localStorage["mica.v1"] = {
+  version: 1,
+  coins: 12,
+  xp: 340,
+  streak: 4,
+  lastPlayedDate: "2026-08-30",        // bloquea el segundo juego del día
+  lastBoardGameDate: "2026-08-25",     // tope de uno por semana
+  recentGames: ["emoji","timeline"],   // últimos 3, no se repiten
+  diceCounter: 2,                      // a los 3, habilita tirada
+  usedPrendas: [3,7,11],               // mazo sin reposición
+  usedContent: { friends:[], personal:[], memories:[] },
+  unlockedPlaces: ["reserva-costanera"],
+  purchased: ["masaje5"],
+  mapNode: 14,
+  log: [ { date:"2026-08-30", game:"emoji", won:true, coins:1, xp:10 } ]
+}</pre>
+
+<h3 class="sub">Botón de configuración</h3>
+<p class="sec-sub">Engranaje arriba a la derecha, fijo en todas las pantallas. Dos acciones y nada más: <b>Exportar progreso</b>, que descarga el JSON, e <b>Importar progreso</b>, que lo reemplaza con confirmación. Sin reset visible.</p>
+
+<h3 class="sub">Deployment</h3>
+<p class="sec-sub">Vercel, repo privado porque las prendas y los cupones están en el código. Sin contraseña: la URL es la única barrera.</p>
+<div class="grid2">
+  <div class="block">
+    <h4>Lo que el deploy resuelve</h4>
+    <ul>
+      <li>Origen fijo: el storage persiste sin depender del puerto ni de cómo levantaste el server.</li>
+      <li>Refrescar, cerrar el navegador y apagar la compu <b>no</b> borran nada.</li>
+      <li>Un deploy nuevo tampoco borra el storage.</li>
+    </ul>
+  </div>
+  <div class="block">
+    <h4>Lo que sigue siendo cierto</h4>
+    <ul>
+      <li>El progreso vive <b>en un solo navegador</b>. Abrirla en otra compu arranca de cero: exportar e importar es la única sincronización que existe.</li>
+      <li>Se pierde si borrás cookies y datos de sitios, usás incógnito o cambiás de perfil de Chrome.</li>
+      <li>Si cambiás la forma del estado guardado, el JSON viejo queda incompatible. Para eso está <code>version</code>: se migra campo por campo, nunca se arranca de cero en silencio.</li>
+    </ul>
+  </div>
+</div>
+
+<h3 class="sub">El sorteo del juego del día</h3>
+<pre>1. Filtrar los juegos que no estén en recentGames (últimos 3).
+2. Si hoy - lastBoardGameDate &lt; 7 días, sacar los de mesa del bombo.
+3. Elegir uno al azar del resto.
+4. Elegir contenido sin usar de ese juego (usedContent).
+   Si no queda contenido nuevo, sacar ese juego del bombo y volver al paso 3.
+5. Guardar la elección del día: si recarga la página, sale el mismo juego.</pre>
+<p class="sec-sub" style="margin-top:10px">El paso 5 importa: sin eso, refresca el navegador hasta que le toque el juego fácil.</p>
+
+<h2 class="sec">Orden de construcción</h2>
+
+<div class="phase">
+  <span class="when">Fase 1</span>
+  <h4>El esqueleto</h4>
+  <p>Estado en localStorage con migración por versión, botón de configuración con exportar e importar, HUD, bloqueo de un juego por día, sorteo con la elección persistida, pantalla de ganó y perdió. Un solo minijuego adentro: piedra, papel o tijera, que no necesita contenido tuyo. Deploy a Vercel acá, no al final. Al cerrar la fase el juego ya es jugable de punta a punta y está live.</p>
+</div>
+<div class="phase">
+  <span class="when">Fase 2</span>
+  <h4>El contenido</h4>
+  <p>Cargar los archivos de datos: fotos, recuerdos en emojis, preguntas personales, banco de Friends (hay listas de 100 a 225 preguntas con respuestas ya armadas en FunTrivia, Thought Catalog y Mental Floss), mazo de prendas y los seis destinos del mapa. Es la parte que más tiempo lleva y la que hace que el juego sea de ustedes. Si andás corto de tiempo, esto no se recorta: se recorta la Fase 4.</p>
+</div>
+<div class="phase">
+  <span class="when">Fase 3</span>
+  <h4>Los diez minijuegos</h4>
+  <p>Cada uno es un componente que recibe su contenido y devuelve ganó o perdió. Se hacen de a uno y cada uno entra al bombo cuando está listo. Los de mesa son el más simple de todos: una pantalla que pregunta quién ganó.</p>
+</div>
+<div class="phase">
+  <span class="when">Fase 4</span>
+  <h4>Economía y brillo</h4>
+  <p>Tienda con confirmación de compra, mapa de 30 casillas con destinos, dado cada 3 días, ruleta de prendas animada y la pantalla de cuando compra el regalo grande. Es lo último y es lo que va a recordar.</p>
+</div>
+
+<h2 class="sec">Para más adelante</h2>
+<p class="sec-sub">Ideas que valen la pena pero que no van ahora. Anotadas para no perderlas.</p>
+
+<div class="grid2">
+  <div class="later">
+    <h4>Timeline de salidas — vale la pena</h4>
+    <p class="dim" style="margin:0">Una tarjeta por salida con fecha, lugar y link al álbum de fotos. Es barato: un array más y un componente de lista. Y se alimenta solo, desde el día que lo prendan. Encaja natural después de la Fase 4, y se conecta con el mapa: cuando canjean una cita, queda la tarjeta.</p>
+  </div>
+  <div class="later">
+    <h4>El libro por años — no ahora</h4>
+    <p class="dim" style="margin:0">La biblioteca con un libro por año y un capítulo por mes se ve hermosa, pero el trabajo real no es el código: es subir, fechar y ordenar años de fotos a mano. Y una vez armado se mira dos veces. Si en algún momento lo querés, que sea solo con las fotos que la app vaya juntando desde ahora, que ya vienen fechadas y ordenadas. Con las viejas, no.</p>
+  </div>
+</div>
+
+<footer>El juego de Micaela · diseño definitivo y plan de implementación · listo para pasar a Claude Code.</footer>
+</div>
+
+<script>
+document.getElementById("map").innerHTML=Array.from({length:30},(_,i)=>{
+  const n=i+1;let c="node";
+  if(n<14)c+=" done"; if(n===14)c+=" here"; if(n%5===0)c+=" prize";
+  return `<div class="${c}">${n}</div>`;
+}).join("");
+let coins=12;
+document.getElementById("playBtn").addEventListener("click",()=>{
+  coins++;document.getElementById("hudCoins").textContent=coins;
+});
+</script>
